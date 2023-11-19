@@ -6,15 +6,15 @@
 #pragma semicolon 1
 #pragma compress 1
 
-public stock const PluginName[] = "[VipM-L] CWAPI";
+public stock const PluginName[] = "[VipM-L] MWallet";
 public stock const PluginVersion[] = "1.0.0";
 public stock const PluginAuthor[] = "ArKaNeMaN";
 public stock const PluginURL[] = "https://github.com/AmxxModularEcosystem/VipM-L-MWallet";
-public stock const PluginDescription[] = "[VipModular-Limit] Modular Wallet.";
+public stock const PluginDescription[] = "[VipModular-Limit] Modular Wallet integration";
 
 new const LIMIT_NAME[] = "MWallet-Enough";
 
-public VipM_IC_OnInitTypes() {
+public VipM_OnInitModules() {
     register_plugin(PluginName, PluginVersion, PluginAuthor);
     
     VipM_Limits_RegisterType(LIMIT_NAME, true, false);
@@ -29,22 +29,21 @@ public VipM_IC_OnInitTypes() {
 
 @OnEnoughRead(const JSON:jLimit, const Trie:tParams) {
     new sCurrencyName[MWALLET_CURRENCY_MAX_NAME_LEN];
-    TrieGetString(tParams, "Currecny", sCurrencyName, charsmax(sCurrencyName));
+    TrieGetString(tParams, "Currency", sCurrencyName, charsmax(sCurrencyName));
 
     new T_Currency:iCurrency = MWallet_Currency_Find(sCurrencyName);
     if (iCurrency == Invalid_Currency) {
         VipM_Json_LogForFile(jLimit, "WARNING", "Currency '%s' not found.", iCurrency);
         return VIPM_STOP;
     }
-
-    TrieSetCell(tParams, "Currecny", iCurrency, true);
+    TrieSetCell(tParams, "CurrencyId", iCurrency, true);
 
     return VIPM_CONTINUE;
 }
 
 @OnEnoughCheck(const Trie:tParams, const UserId) {
     return MWallet_Currency_IsEnough(
-        VipM_Params_GetCell(tParams, "Currency"),
+        VipM_Params_GetCell(tParams, "CurrencyId"),
         UserId,
         VipM_Params_GetFloat(tParams, "Amount")
     );
